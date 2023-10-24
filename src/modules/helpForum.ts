@@ -56,7 +56,7 @@ export async function questionMeetsRequirements(
 
 	const fields = [];
 
-	if (content.length < 100 || content.split(' ').length < 20) {
+	if (content.length < 100 && content.split(' ').length < 20) {
 		fields.push({
 			name: 'Too short!',
 			value: `Questions should be at least 100 characters or 20 words (currently at ${
@@ -88,7 +88,8 @@ export async function questionMeetsRequirements(
 	} else {
 		embed = buildEmbedMessage({
 			title: 'Your question meets all of the requirements.',
-			description: 'A helper will help you as soon as possible.',
+			description:
+				"A helper will help you as soon as possible. If your question doesn't recieve any responses after two hours, feel free to run `!helpers` to ping helpers to your thread.",
 			type: 'success',
 		});
 	}
