@@ -14,15 +14,11 @@ import {
 import { Bot } from '~/bot';
 import { ForumThread } from '~/types';
 
-import {
-	sendInfoMessage,
-	sendSpecialMessage,
-	sendWarningMessage,
-} from '~/utils/message';
 import { config } from '~/env';
 import { del, get, set } from '~/utils/db';
 import { logger } from '~/utils/logger';
 import { buildEmbedMessage } from '~/utils/embed';
+import { sendEmbedMessage } from '~/utils/message';
 
 function getTag(channel: ForumChannel, name: string) {
 	const tag = channel.availableTags.find((x) => x.name === name);
@@ -51,13 +47,11 @@ export async function questionMeetsRequirements(
 	let embed;
 	const components: ActionRowBuilder<ButtonBuilder>[] = [];
 	if (fields.length > 0) {
-		embed = buildEmbedMessage(
-			{
-				title: 'We found some issues with your post.',
-				fields: fields,
-			},
-			'error',
-		);
+		embed = buildEmbedMessage({
+			title: 'We found some issues with your post.',
+			fields: fields,
+			type: 'error',
+		});
 		components.push(
 			new ActionRowBuilder<ButtonBuilder>().addComponents(
 				new ButtonBuilder()
@@ -69,13 +63,11 @@ export async function questionMeetsRequirements(
 			),
 		);
 	} else {
-		embed = buildEmbedMessage(
-			{
-				title: 'Your question meets all of the requirements.',
-				description: 'A helper will help you as soon as possible.',
-			},
-			'success',
-		);
+		embed = buildEmbedMessage({
+			title: 'Your question meets all of the requirements.',
+			description: 'A helper will help you as soon as possible.',
+			type: 'success',
+		});
 	}
 	if (!edit)
 		thread.send({
@@ -145,9 +137,13 @@ export async function helpForumModule(bot: Bot) {
 		description: 'Help System: Ping the @Helper role from a help post.',
 		async listener(msg, comment) {
 			if (!isHelpThread(msg.channel)) {
-				await sendWarningMessage(msg.channel, {
-					title: 'You may only ping helpers from a help post!',
-				});
+				await sendEmbedMessage(
+					msg.channel,
+					buildEmbedMessage({
+						title: 'You may only ping helpers from a help post!',
+						type: 'warning',
+					}),
+				);
 				return;
 			}
 
@@ -158,9 +154,13 @@ export async function helpForumModule(bot: Bot) {
 			const isHelper = bot.isHelper(msg);
 
 			if (!isAsker && !isHelper) {
-				await sendWarningMessage(thread, {
-					title: 'Only the asker can ping helpers!',
-				});
+				await sendEmbedMessage(
+					thread,
+					buildEmbedMessage({
+						title: 'Only the asker can ping helpers!',
+						type: 'warning',
+					}),
+				);
 				return;
 			}
 
@@ -176,12 +176,16 @@ export async function helpForumModule(bot: Bot) {
 			// Helpers (who aren't the asker) are allowed to disregard the timeout.
 
 			if (isAsker && Date.now() < pingAllowedAfter) {
-				await sendWarningMessage(thread, {
-					title: 'Please wait a bit longer.',
-					description: `You can ping helpers <t:${Math.ceil(
-						pingAllowedAfter / 1000,
-					)}:R>.`,
-				});
+				await sendEmbedMessage(
+					thread,
+					buildEmbedMessage({
+						title: 'Please wait a bit longer.',
+						description: `You can ping helpers <t:${Math.ceil(
+							pingAllowedAfter / 1000,
+						)}:R>.`,
+						type: 'warning',
+					}),
+				);
 				return;
 			}
 
@@ -205,9 +209,13 @@ export async function helpForumModule(bot: Bot) {
 						isHelper ? comment : ''
 					}`,
 				),
-				await sendSpecialMessage(thread, {
-					title: 'Helpers are on the way!',
-				}),
+				await sendEmbedMessage(
+					thread,
+					buildEmbedMessage({
+						title: 'Helpers are on the way!',
+						type: 'special',
+					}),
+				),
 				await set(
 					['forum', thread.id],
 					JSON.stringify({
@@ -259,9 +267,13 @@ export async function helpForumModule(bot: Bot) {
 	async function changeStatus(msg: Message, resolved: boolean) {
 		const thread = msg.channel;
 		if (!isHelpThread(thread)) {
-			await sendWarningMessage(thread, {
-				title: 'Can only be run in a help post!',
-			});
+			await sendEmbedMessage(
+				thread,
+				buildEmbedMessage({
+					title: 'Can only be run in a help post!',
+					type: 'warning',
+				}),
+			);
 			return;
 		}
 
@@ -271,19 +283,27 @@ export async function helpForumModule(bot: Bot) {
 		const isHelper = bot.isHelper(msg);
 
 		if (!isAsker && !isHelper) {
-			await sendWarningMessage(thread, {
-				title: 'Only the asker can change the status of a help post!',
-			});
+			await sendEmbedMessage(
+				thread,
+				buildEmbedMessage({
+					title: 'Only the asker can change the status of a help post!',
+					type: 'warning',
+				}),
+			);
 			return;
 		}
 
 		await setStatus(thread, resolved ? resolvedTag : openTag);
-		await sendInfoMessage(thread, {
-			title: `Thread marked as ${resolved ? 'resolved' : 'opened'}.`,
-			description: `Enter \`!${resolved ? 'reopen' : 'resolve'}\` to ${
-				resolved ? 'reopen' : 'resolve'
-			} the thread.`,
-		});
+		await sendEmbedMessage(
+			thread,
+			buildEmbedMessage({
+				title: `Thread marked as ${resolved ? 'resolved' : 'opened'}.`,
+				description: `Enter \`!${
+					resolved ? 'reopen' : 'resolve'
+				}\` to ${resolved ? 'reopen' : 'resolve'} the thread.`,
+				type: 'info',
+			}),
+		);
 
 		if (resolved && !isAsker) {
 			await thread.send(helperResolve(thread.ownerId!, msg.author.id));

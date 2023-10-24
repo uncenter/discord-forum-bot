@@ -13,22 +13,13 @@ export type EmbedMessage = {
 	deletable?: boolean;
 	fields?: { name: string; value: string }[];
 	components?: ActionRowBuilder<ButtonBuilder>[];
+	type: 'error' | 'warning' | 'success' | 'info' | 'special';
 };
 
-export type EmbedMessageType =
-	| 'error'
-	| 'warning'
-	| 'success'
-	| 'info'
-	| 'special';
-
-export function buildEmbedMessage(
-	message: EmbedMessage,
-	type: EmbedMessageType,
-) {
+export function buildEmbedMessage(message: EmbedMessage) {
 	const embed = new EmbedBuilder().setTitle(message.title);
 	let color;
-	switch (type) {
+	switch (message.type) {
 		case 'error': {
 			color = HEX_RED;
 			break;
