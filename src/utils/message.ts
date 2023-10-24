@@ -1,6 +1,5 @@
 import {
 	DMChannel,
-	EmbedBuilder,
 	NewsChannel,
 	PartialDMChannel,
 	PrivateThreadChannel,
@@ -9,19 +8,8 @@ import {
 	TextChannel,
 	VoiceChannel,
 } from 'discord.js';
-import {
-	HEX_BLUE,
-	HEX_GREEN,
-	HEX_PURPLE,
-	HEX_RED,
-	HEX_YELLOW,
-} from '~/utils/constants';
 import { EMBED_DELETE_BUTTON } from '~/modules/buttonEvents';
-
-type EmbedMessage = {
-	title: string;
-	description?: string;
-};
+import { EmbedMessage, EmbedMessageType, buildEmbedMessage } from './embed';
 
 type SendableChannel =
 	| DMChannel
@@ -37,55 +25,42 @@ export async function sendErrorMessage(
 	channel: SendableChannel,
 	message: EmbedMessage,
 ) {
-	await sendDeletableMessage(channel, { ...message, color: HEX_RED });
+	await sendDeletableMessage(channel, message, 'error');
 }
 export async function sendWarningMessage(
 	channel: SendableChannel,
 	message: EmbedMessage,
 ) {
-	await sendDeletableMessage(channel, { ...message, color: HEX_YELLOW });
-}
-export async function sendInfoMessage(
-	channel: SendableChannel,
-	message: EmbedMessage,
-) {
-	await sendDeletableMessage(channel, { ...message, color: HEX_BLUE });
+	await sendDeletableMessage(channel, message, 'warning');
 }
 export async function sendSuccessMessage(
 	channel: SendableChannel,
 	message: EmbedMessage,
 ) {
-	await sendDeletableMessage(channel, { ...message, color: HEX_GREEN });
+	await sendDeletableMessage(channel, message, 'success');
+}
+export async function sendInfoMessage(
+	channel: SendableChannel,
+	message: EmbedMessage,
+) {
+	await sendDeletableMessage(channel, message, 'info');
 }
 export async function sendSpecialMessage(
 	channel: SendableChannel,
 	message: EmbedMessage,
 ) {
-	await sendDeletableMessage(channel, { ...message, color: HEX_PURPLE });
+	await sendDeletableMessage(channel, message, 'special');
 }
 
 async function sendDeletableMessage(
-	channel:
-		| DMChannel
-		| PartialDMChannel
-		| NewsChannel
-		| StageChannel
-		| TextChannel
-		| PrivateThreadChannel
-		| PublicThreadChannel
-		| VoiceChannel,
-	message: EmbedMessage & {
-		color: number;
-	},
+	channel: SendableChannel,
+	message: EmbedMessage,
+	type: EmbedMessageType,
 ) {
-	const embed = new EmbedBuilder()
-		.setTitle(message.title)
-		.setColor(message.color);
-	if (message.description) {
-		embed.setDescription(message.description);
-	}
 	await channel.send({
-		embeds: [embed],
-		components: [EMBED_DELETE_BUTTON],
+		embeds: [buildEmbedMessage(message, type)],
+		components:
+			message.components ||
+			(message.deletable === true ? [EMBED_DELETE_BUTTON] : []),
 	});
 }

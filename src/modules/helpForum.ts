@@ -1,4 +1,8 @@
 import {
+	ActionRowBuilder,
+	AnyThreadChannel,
+	ButtonBuilder,
+	ButtonStyle,
 	Channel,
 	ChannelType,
 	Events,
@@ -10,15 +14,75 @@ import {
 import { Bot } from '~/bot';
 import { ForumThread } from '~/types';
 
-import { sendWarningMessage } from '~/utils/message';
+import {
+	sendInfoMessage,
+	sendSpecialMessage,
+	sendWarningMessage,
+} from '~/utils/message';
 import { config } from '~/env';
 import { del, get, set } from '~/utils/db';
 import { logger } from '~/utils/logger';
+import { buildEmbedMessage } from '~/utils/embed';
 
 function getTag(channel: ForumChannel, name: string) {
 	const tag = channel.availableTags.find((x) => x.name === name);
 	if (!tag) throw new Error(`Could not find tag ${name}.`);
 	return tag.id;
+}
+
+export async function questionMeetsRequirements(
+	thread: AnyThreadChannel,
+	edit?: boolean,
+) {
+	const msg = await thread.fetchStarterMessage();
+	if (!msg) logger.error("Couldn't find original message of thread.");
+	const { content, id, channelId } = msg as Message<true>;
+
+	const fields = [];
+
+	if (content.length <= 150 || content.split(' ').length <= 30) {
+		fields.push({
+			name: 'Length',
+			value: `Your post is too short! Make sure it is at least 150 characters or at least 30 words (currently at ${
+				content.length
+			} characters / ${content.split(' ').length} words).`,
+		});
+	}
+	let embed;
+	const components: ActionRowBuilder<ButtonBuilder>[] = [];
+	if (fields.length > 0) {
+		embed = buildEmbedMessage(
+			{
+				title: 'We found some issues with your post.',
+				fields: fields,
+			},
+			'error',
+		);
+		components.push(
+			new ActionRowBuilder<ButtonBuilder>().addComponents(
+				new ButtonBuilder()
+					.setStyle(ButtonStyle.Success)
+					.setLabel('Try Again')
+					.setCustomId(
+						`try-again-thread-requirements::${channelId}::${id}`,
+					),
+			),
+		);
+	} else {
+		embed = buildEmbedMessage(
+			{
+				title: 'Your question meets all of the requirements.',
+				description: 'A helper will help you as soon as possible.',
+			},
+			'success',
+		);
+	}
+	if (!edit)
+		thread.send({
+			embeds: [embed],
+			components: components,
+		});
+	return { embed, components };
 }
 
 const MAX_TAG_COUNT = 5;
@@ -68,6 +132,7 @@ export async function helpForumModule(bot: Bot) {
 		);
 
 		await setStatus(thread, openTag);
+		await questionMeetsRequirements(thread);
 	});
 
 	bot.client.on(Events.ThreadDelete, async (thread) => {
@@ -140,7 +205,9 @@ export async function helpForumModule(bot: Bot) {
 						isHelper ? comment : ''
 					}`,
 				),
-				msg.react('✅'),
+				await sendSpecialMessage(thread, {
+					title: 'Helpers are on the way!',
+				}),
 				await set(
 					['forum', thread.id],
 					JSON.stringify({
@@ -198,8 +265,9 @@ export async function helpForumModule(bot: Bot) {
 			return;
 		}
 
-		const threadData = await getHelpThread(thread.id);
-		const isAsker = msg.author.id === threadData.ownerId;
+		const { ownerId } = await getHelpThread(thread.id);
+
+		const isAsker = msg.author.id === ownerId;
 		const isHelper = bot.isHelper(msg);
 
 		if (!isAsker && !isHelper) {
@@ -210,7 +278,12 @@ export async function helpForumModule(bot: Bot) {
 		}
 
 		await setStatus(thread, resolved ? resolvedTag : openTag);
-		await msg.react('✅');
+		await sendInfoMessage(thread, {
+			title: `Thread marked as ${resolved ? 'resolved' : 'opened'}.`,
+			description: `Enter \`!${resolved ? 'reopen' : 'resolve'}\` to ${
+				resolved ? 'reopen' : 'resolve'
+			} the thread.`,
+		});
 
 		if (resolved && !isAsker) {
 			await thread.send(helperResolve(thread.ownerId!, msg.author.id));

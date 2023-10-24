@@ -1,10 +1,12 @@
 import {
 	ActionRowBuilder,
+	AnyThreadChannel,
 	ButtonBuilder,
 	ButtonStyle,
 	Events,
 } from 'discord.js';
 import { Bot } from '~/bot';
+import { questionMeetsRequirements } from './helpForum';
 
 export const EMBED_DELETE_BUTTON =
 	new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -23,6 +25,18 @@ export async function handleButtonEvents(bot: Bot) {
 
 		if (event === 'delete-message') {
 			await interaction.message.delete();
+		} else if (event === 'try-again-thread-requirements') {
+			const thread = bot.client.channels.cache.get(
+				data[0],
+			) as AnyThreadChannel;
+			const { embed, components } = await questionMeetsRequirements(
+				thread,
+				true,
+			);
+			await interaction.update({
+				embeds: [embed],
+				components: components,
+			});
 		}
 	});
 }
