@@ -1,0 +1,43 @@
+{
+	"name": "discord-forum-bot",
+	"version": "0.1.0",
+	"description": "A Discord bot to improve forums.",
+	"private": true,
+	"author": "uncenter <hi@uncenter.dev>",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/uncenter/discord-forum-bot.git"
+	},
+	"license": "MIT",
+	"scripts": {
+		"dev": "NODE_ENV=development NODE_NO_WARNINGS=1 tsx watch src/index.ts",
+		"start": "NODE_ENV=production NODE_NO_WARNINGS=1 tsx src/index.ts",
+		"lint": "tsc && eslint . && prettier --check .",
+		"format": "prettier --write ."
+	},
+	"dependencies": {
+		"@hono/node-server": "^1.2.0",
+		"argon2": "^0.31.1",
+		"discord.js": "^14.13.0",
+		"dotenv": "^16.3.1",
+		"hono": "^3.7.6",
+		"kleur": "^4.1.5",
+		"tsx": "^3.13.0",
+		"unstorage": "^1.9.0",
+		"valibot": "^0.19.0"
+	},
+	"devDependencies": {
+		"@types/node": "^20.8.7",
+		"@typescript-eslint/eslint-plugin": "^6.9.0",
+		"@typescript-eslint/parser": "^6.9.0",
+		"eslint": "^8.52.0",
+		"eslint-config-prettier": "^9.0.0",
+		"eslint-plugin-unicorn": "^48.0.1",
+		"prettier": "^3.0.3",
+		"typescript": "^5.2.2"
+	},
+	"engines": {
+		"node": ">=18"
+	},
+	"packageManager": "pnpm@8.9.2"
+}

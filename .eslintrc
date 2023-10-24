@@ -1,0 +1,19 @@
+{
+	"root": true,
+	"parser": "@typescript-eslint/parser",
+	"plugins": ["@typescript-eslint", "unicorn"],
+	"extends": [
+		"eslint:recommended",
+		"plugin:@typescript-eslint/recommended",
+		"plugin:unicorn/recommended",
+		"prettier"
+	],
+	"rules": {
+		"@typescript-eslint/no-non-null-assertion": "off",
+		"unicorn/prevent-abbreviations": "off",
+		"unicorn/filename-case": "off",
+		"unicorn/no-process-exit": "off",
+		"unicorn/numeric-separators-style": "off",
+		"unicorn/no-null": "off"
+	}
+}
