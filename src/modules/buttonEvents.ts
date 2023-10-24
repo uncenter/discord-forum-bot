@@ -1,5 +1,5 @@
-import type { Bot } from '~/bot';
 import type { AnyThreadChannel } from 'discord.js';
+import type { Bot } from '~/bot';
 
 import {
 	ActionRowBuilder,

@@ -1,5 +1,5 @@
-import type { Bot } from '~/bot';
 import type { Message } from 'discord.js';
+import type { Bot } from '~/bot';
 
 import { EmbedBuilder, Events } from 'discord.js';
 

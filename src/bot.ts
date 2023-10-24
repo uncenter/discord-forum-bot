@@ -1,4 +1,4 @@
-import type { Message, Client, User, GuildMember } from 'discord.js';
+import type { Client, GuildMember, Message, User } from 'discord.js';
 
 import { Events } from 'discord.js';
 

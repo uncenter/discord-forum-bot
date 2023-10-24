@@ -1,13 +1,13 @@
-import type { Bot } from '~/bot';
-import type { ForumThread } from '~/types';
 import type {
-	TextChannel,
 	AnyThreadChannel,
 	Channel,
 	ForumChannel,
 	Message,
 	TextBasedChannel,
+	TextChannel,
 } from 'discord.js';
+import type { Bot } from '~/bot';
+import type { ForumThread } from '~/types';
 
 import {
 	ActionRowBuilder,

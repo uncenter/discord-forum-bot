@@ -1,10 +1,10 @@
 import type { Client, Presence } from 'discord.js';
 
 import { serve } from '@hono/node-server';
+import { verify } from 'argon2';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { secureHeaders } from 'hono/secure-headers';
-import { verify } from 'argon2';
 
 import { config } from '~/env';
 import { get } from '~/utils/db';
