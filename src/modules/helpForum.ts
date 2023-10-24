@@ -8,6 +8,7 @@ import {
 	Events,
 	ForumChannel,
 	Message,
+	TextBasedChannel,
 	TextChannel,
 	ThreadChannel,
 } from 'discord.js';
@@ -19,11 +20,28 @@ import { del, get, set } from '~/utils/db';
 import { logger } from '~/utils/logger';
 import { buildEmbedMessage } from '~/utils/embed';
 import { sendEmbedMessage } from '~/utils/message';
+import { bold, cyan } from 'kleur/colors';
 
-function getTag(channel: ForumChannel, name: string) {
+function findTag(channel: ForumChannel, name: string) {
 	const tag = channel.availableTags.find((x) => x.name === name);
 	if (!tag) throw new Error(`Could not find tag ${name}.`);
 	return tag.id;
+}
+
+function generateHelpRequest(thread: ThreadChannel, forum: ForumChannel) {
+	const tagStrings = thread.appliedTags.flatMap((t) => {
+		const tag = forum.availableTags.find((at) => at.id === t);
+		if (!tag) return [];
+		if (!tag.emoji) return tag.name;
+
+		const emoji = tag.emoji.id
+			? `<:${tag.emoji.name}:${tag.emoji.id}>`
+			: tag.emoji.name;
+		return `${emoji} ${tag.name}`;
+	});
+	const tags = tagStrings ? `(${tagStrings.join(', ')})` : '';
+
+	return `<@&${config.HELPER_ROLE_ID}> ${thread} ${tags}`;
 }
 
 export async function questionMeetsRequirements(
@@ -36,14 +54,17 @@ export async function questionMeetsRequirements(
 
 	const fields = [];
 
-	if (content.length <= 150 || content.split(' ').length <= 30) {
+	if (content.length < 100 || content.split(' ').length < 20) {
 		fields.push({
-			name: 'Length',
-			value: `Your post is too short! Make sure it is at least 150 characters or at least 30 words (currently at ${
+			name: 'Too short!',
+			value: `Questions should be at least 100 characters or 20 words (currently at ${
 				content.length
-			} characters / ${content.split(' ').length} words).`,
+			} characters / ${
+				content.split(' ').length
+			} words) and include all relevant details about the problem.`,
 		});
 	}
+
 	let embed;
 	const components: ActionRowBuilder<ButtonBuilder>[] = [];
 	if (fields.length > 0) {
@@ -79,12 +100,14 @@ export async function questionMeetsRequirements(
 
 const MAX_TAG_COUNT = 5;
 
-const helperResolve = (owner: string, helper: string) => `
+function resolvedByHelper(owner: string, helper: string) {
+	return `
 <@${owner}>
 Because your issue seemed to be resolved, this post was marked as resolved by <@${helper}>.
 If your issue is not resolved, **you can reopen this post by running \`!reopen\`**.
 *If you have a different question, make a new post in <#${config.HELP_FORUM_CHANNEL}>.*
 `;
+}
 
 export async function helpForumModule(bot: Bot) {
 	const channel = await bot.client.guilds.cache
@@ -96,15 +119,15 @@ export async function helpForumModule(bot: Bot) {
 		);
 		return;
 	}
-	const forumChannel = channel;
-	const openTag = getTag(forumChannel, config.HELP_FORUM_OPEN_TAG);
-	const resolvedTag = getTag(forumChannel, config.HELP_FORUM_RESOLVED_TAG);
+	const forum = channel;
+	const openTag = findTag(forum, config.HELP_FORUM_OPEN_TAG);
+	const resolvedTag = findTag(forum, config.HELP_FORUM_RESOLVED_TAG);
 
 	const helpRequestChannel = await bot.client.guilds.cache
 		.first()
 		?.channels.fetch(config.HELP_REQUESTS_CHANNEL);
 	if (!helpRequestChannel?.isTextBased()) {
-		console.error(`Expected ${helpRequestChannel} to be a text channel.`);
+		logger.fatal(`Expected ${helpRequestChannel} to be a text channel.`);
 		return;
 	}
 
@@ -112,7 +135,9 @@ export async function helpForumModule(bot: Bot) {
 		const owner = await thread.fetchOwner();
 		if (!owner?.user || !isHelpThread(thread)) return;
 		logger.info(
-			`Received new question from ${owner.user.tag} in thread ${thread.id}.`,
+			`Received new question from ${bold(
+				owner.user.tag,
+			)} in thread ${cyan(thread.id)}.`,
 		);
 
 		await set(
@@ -134,8 +159,7 @@ export async function helpForumModule(bot: Bot) {
 
 	bot.registerCommand({
 		aliases: ['helper', 'helpers'],
-		description: 'Help System: Ping the @Helper role from a help post.',
-		async listener(msg, comment) {
+		async listener(msg) {
 			if (!isHelpThread(msg.channel)) {
 				await sendEmbedMessage(
 					msg.channel,
@@ -189,47 +213,29 @@ export async function helpForumModule(bot: Bot) {
 				return;
 			}
 
-			const tagStrings = thread.appliedTags.flatMap((t) => {
-				const tag = forumChannel.availableTags.find(
-					(at) => at.id === t,
-				);
-				if (!tag) return [];
-				if (!tag.emoji) return tag.name;
-
-				const emoji = tag.emoji.id
-					? `<:${tag.emoji.name}:${tag.emoji.id}>`
-					: tag.emoji.name;
-				return `${emoji} ${tag.name}`;
-			});
-			const tags = tagStrings ? `(${tagStrings.join(', ')})` : '';
-
-			await Promise.all([
-				helpRequestChannel.send(
-					`<@&${config.HELPER_ROLE_ID}> ${msg.channel} ${tags} ${
-						isHelper ? comment : ''
-					}`,
-				),
-				await sendEmbedMessage(
-					thread,
-					buildEmbedMessage({
-						title: 'Helpers are on the way!',
-						type: 'special',
-					}),
-				),
-				await set(
-					['forum', thread.id],
-					JSON.stringify({
-						...threadData,
-						lastHelpersPing: Date.now(),
-					}),
-				),
-			]);
+			const helpRequestMsg = await helpRequestChannel.send(
+				generateHelpRequest(thread, forum),
+			);
+			await sendEmbedMessage(
+				thread,
+				buildEmbedMessage({
+					title: 'Helpers are on the way!',
+					type: 'special',
+				}),
+			);
+			await set(
+				['forum', thread.id],
+				JSON.stringify({
+					...threadData,
+					lastHelpersPing: Date.now(),
+					helpRequestMsg: helpRequestMsg.id,
+				}),
+			);
 		},
 	});
 
 	bot.registerCommand({
 		aliases: ['resolved', 'resolve', 'close', 'closed', 'done', 'solved'],
-		description: 'Help System: Mark a post as resolved.',
 		async listener(msg) {
 			changeStatus(msg, true);
 		},
@@ -237,7 +243,6 @@ export async function helpForumModule(bot: Bot) {
 
 	bot.registerCommand({
 		aliases: ['reopen', 'open', 'unresolved', 'unresolve'],
-		description: 'Help System: Reopen a resolved post.',
 		async listener(msg) {
 			changeStatus(msg, false);
 		},
@@ -250,7 +255,7 @@ export async function helpForumModule(bot: Bot) {
 
 		const initial = await thread.fetchStarterMessage();
 		if (initial?.id !== message.id) return;
-		const tag = forumChannel.availableTags.find(
+		const tag = forum.availableTags.find(
 			(t) =>
 				t.emoji &&
 				!t.moderated &&
@@ -277,9 +282,9 @@ export async function helpForumModule(bot: Bot) {
 			return;
 		}
 
-		const { ownerId } = await getHelpThread(thread.id);
+		const threadData = await getHelpThread(thread.id);
 
-		const isAsker = msg.author.id === ownerId;
+		const isAsker = msg.author.id === threadData.ownerId;
 		const isHelper = bot.isHelper(msg);
 
 		if (!isAsker && !isHelper) {
@@ -304,9 +309,13 @@ export async function helpForumModule(bot: Bot) {
 				type: 'info',
 			}),
 		);
+		(helpRequestChannel as TextBasedChannel)?.messages.edit(
+			threadData.helpRequestMsg,
+			generateHelpRequest(thread, forum),
+		);
 
 		if (resolved && !isAsker) {
-			await thread.send(helperResolve(thread.ownerId!, msg.author.id));
+			await thread.send(resolvedByHelper(thread.ownerId!, msg.author.id));
 		}
 	}
 
@@ -315,7 +324,7 @@ export async function helpForumModule(bot: Bot) {
 
 		if (!threadData) {
 			// Thread was created when the bot was down.
-			const thread = await forumChannel.threads.fetch(threadId);
+			const thread = await forum.threads.fetch(threadId);
 			if (!thread) throw new Error('Not a forum thread ID!');
 
 			await set(
@@ -332,8 +341,7 @@ export async function helpForumModule(bot: Bot) {
 		channel: ThreadChannel | Channel,
 	): channel is ThreadChannel & { parent: TextChannel } {
 		return (
-			channel instanceof ThreadChannel &&
-			channel.parent?.id === forumChannel.id
+			channel instanceof ThreadChannel && channel.parent?.id === forum.id
 		);
 	}
 
