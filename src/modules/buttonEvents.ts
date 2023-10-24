@@ -1,12 +1,14 @@
+import type { Bot } from '~/bot';
+import type { AnyThreadChannel } from 'discord.js';
+
 import {
 	ActionRowBuilder,
-	AnyThreadChannel,
 	ButtonBuilder,
 	ButtonStyle,
 	Events,
 } from 'discord.js';
-import { Bot } from '~/bot';
-import { questionMeetsRequirements } from './helpForum';
+
+import { questionMeetsRequirements } from '~/modules/helpForum';
 
 export const EMBED_DELETE_BUTTON =
 	new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -16,7 +18,7 @@ export const EMBED_DELETE_BUTTON =
 			.setCustomId(`delete-message`),
 	);
 
-export async function handleButtonEvents(bot: Bot) {
+export async function handleButtonEventsModule(bot: Bot) {
 	bot.client.on(Events.InteractionCreate, async (interaction) => {
 		if (!interaction.isButton()) return;
 

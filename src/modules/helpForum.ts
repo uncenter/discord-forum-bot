@@ -1,26 +1,28 @@
-import {
-	ActionRowBuilder,
+import type { Bot } from '~/bot';
+import type { ForumThread } from '~/types';
+import type {
+	TextChannel,
 	AnyThreadChannel,
-	ButtonBuilder,
-	ButtonStyle,
 	Channel,
-	ChannelType,
-	Events,
 	ForumChannel,
 	Message,
 	TextBasedChannel,
-	TextChannel,
+} from 'discord.js';
+
+import {
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
+	ChannelType,
+	Events,
 	ThreadChannel,
 } from 'discord.js';
-import { Bot } from '~/bot';
-import { ForumThread } from '~/types';
+import { bold, cyan } from 'kleur/colors';
 
 import { config } from '~/env';
 import { del, get, set } from '~/utils/db';
+import { buildEmbedMessage, sendEmbedMessage } from '~/utils/embed';
 import { logger } from '~/utils/logger';
-import { buildEmbedMessage } from '~/utils/embed';
-import { sendEmbedMessage } from '~/utils/message';
-import { bold, cyan } from 'kleur/colors';
 
 function findTag(channel: ForumChannel, name: string) {
 	const tag = channel.availableTags.find((x) => x.name === name);

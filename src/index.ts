@@ -1,4 +1,5 @@
 import 'dotenv/config';
+
 import {
 	Client,
 	Events,
@@ -7,18 +8,22 @@ import {
 	Partials,
 	PermissionFlagsBits,
 } from 'discord.js';
+import { cyan } from 'kleur/colors';
 
 import { Bot } from '~/bot';
 import { config } from '~/env';
 import { logger } from '~/utils/logger';
 import { startServer } from '~/server';
 
-import { cyan } from 'kleur/colors';
-
-import { helpForumModule } from '~/modules/helpForum';
+import { handleButtonEventsModule } from '~/modules/buttonEvents';
 import { expandGitHubLinksModule } from '~/modules/expandGitHubLinks';
-import { handleButtonEvents } from '~/modules/buttonEvents';
-const modules = [helpForumModule, expandGitHubLinksModule, handleButtonEvents];
+import { helpForumModule } from '~/modules/helpForum';
+
+const modules = [
+	helpForumModule,
+	expandGitHubLinksModule,
+	handleButtonEventsModule,
+];
 
 const client = new Client({
 	partials: [

@@ -1,10 +1,7 @@
-import {
-	type Message,
-	type Client,
-	type User,
-	type GuildMember,
-	Events,
-} from 'discord.js';
+import type { Message, Client, User, GuildMember } from 'discord.js';
+
+import { Events } from 'discord.js';
+
 import { config } from '~/env';
 
 export interface CommandRegistration {

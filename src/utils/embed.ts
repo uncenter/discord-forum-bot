@@ -1,4 +1,18 @@
-import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from 'discord.js';
+import type {
+	ActionRowBuilder,
+	ButtonBuilder,
+	DMChannel,
+	NewsChannel,
+	PartialDMChannel,
+	PrivateThreadChannel,
+	PublicThreadChannel,
+	StageChannel,
+	TextChannel,
+	VoiceChannel,
+} from 'discord.js';
+
+import { EmbedBuilder } from 'discord.js';
+
 import {
 	HEX_BLUE,
 	HEX_GREEN,
@@ -6,6 +20,16 @@ import {
 	HEX_RED,
 	HEX_YELLOW,
 } from '~/utils/constants';
+
+type SendableChannel =
+	| DMChannel
+	| PartialDMChannel
+	| NewsChannel
+	| StageChannel
+	| TextChannel
+	| PrivateThreadChannel
+	| PublicThreadChannel
+	| VoiceChannel;
 
 export type EmbedMessage = {
 	title: string;
@@ -49,4 +73,13 @@ export function buildEmbedMessage(message: EmbedMessage) {
 		embed.addFields(message.fields);
 	}
 	return embed;
+}
+
+export async function sendEmbedMessage(
+	channel: SendableChannel,
+	embed: EmbedBuilder,
+) {
+	await channel.send({
+		embeds: [embed],
+	});
 }

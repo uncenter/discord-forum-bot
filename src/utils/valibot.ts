@@ -1,6 +1,6 @@
-import { blue, bold, cyan, dim, red } from 'kleur/colors';
+import type { ValiError } from 'valibot';
 
-import { type ValiError } from 'valibot';
+import { blue, bold, cyan, dim, red } from 'kleur/colors';
 
 export const formatValiError = (err: ValiError) => {
 	const issues = err.issues;

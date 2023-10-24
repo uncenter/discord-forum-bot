@@ -1,5 +1,7 @@
-import { EmbedBuilder, Events, type Message } from 'discord.js';
-import { Bot } from '~/bot';
+import type { Bot } from '~/bot';
+import type { Message } from 'discord.js';
+
+import { EmbedBuilder, Events } from 'discord.js';
 
 const regex =
 	/https?:\/\/github\.com\/([\w-]+\/[\w.-]+)\/blob\/(.+?)\/(.+?)#L(\d+)[~-]?L?(\d*)/g;
