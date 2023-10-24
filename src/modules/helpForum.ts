@@ -311,10 +311,12 @@ export async function helpForumModule(bot: Bot) {
 				type: 'info',
 			}),
 		);
-		(helpRequestChannel as TextBasedChannel)?.messages.edit(
-			threadData.helpRequestMsg,
-			generateHelpRequest(thread, forum),
-		);
+		if (threadData.helpRequestMsg) {
+			(helpRequestChannel as TextBasedChannel)?.messages.edit(
+				threadData.helpRequestMsg,
+				generateHelpRequest(thread, forum),
+			);
+		}
 
 		if (resolved && !isAsker) {
 			await thread.send(resolvedByHelper(thread.ownerId!, msg.author.id));
