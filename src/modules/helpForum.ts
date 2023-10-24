@@ -304,7 +304,7 @@ export async function helpForumModule(bot: Bot) {
 		await sendEmbedMessage(
 			thread,
 			buildEmbedMessage({
-				title: `Thread marked as ${resolved ? 'resolved' : 'opened'}.`,
+				title: `Thread marked as ${resolved ? 'resolved' : 'open'}.`,
 				description: `Enter \`!${
 					resolved ? 'reopen' : 'resolve'
 				}\` to ${resolved ? 'reopen' : 'resolve'} the thread.`,
