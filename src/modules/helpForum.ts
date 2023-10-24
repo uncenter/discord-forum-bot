@@ -194,9 +194,9 @@ export async function helpForumModule(bot: Bot) {
 					thread.createdTimestamp ??
 					Date.now()
 				) +
-				60_000 * 10;
+				1000 * 60 * 60 * 2;
 
-			// Ensure they've waited long enough.
+			// Ensure they've waited long enough (2 hours after posting).
 			// Helpers (who aren't the asker) are allowed to disregard the timeout.
 
 			if (isAsker && Date.now() < pingAllowedAfter) {
