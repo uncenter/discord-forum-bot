@@ -103,15 +103,6 @@ export async function questionMeetsRequirements(
 
 const MAX_TAG_COUNT = 5;
 
-function resolvedByHelper(owner: string, helper: string) {
-	return `
-<@${owner}>
-Because your issue seemed to be resolved, this post was marked as resolved by <@${helper}>.
-If your issue is not resolved, **you can reopen this post by running \`!reopen\`**.
-*If you have a different question, make a new post in <#${config.HELP_FORUM_CHANNEL}>.*
-`;
-}
-
 export async function helpForumModule(bot: Bot) {
 	const channel = await bot.client.guilds.cache
 		.first()
@@ -123,6 +114,7 @@ export async function helpForumModule(bot: Bot) {
 		return;
 	}
 	const forum = channel;
+
 	const openTag = findTag(forum, config.HELP_FORUM_OPEN_TAG);
 	const resolvedTag = findTag(forum, config.HELP_FORUM_RESOLVED_TAG);
 
@@ -137,12 +129,12 @@ export async function helpForumModule(bot: Bot) {
 	bot.client.on(Events.ThreadCreate, async (thread) => {
 		const owner = await thread.fetchOwner();
 		if (!owner?.user || !isHelpThread(thread)) return;
+
 		logger.info(
 			`Received new question from ${bold(
 				owner.user.tag,
 			)} in thread ${cyan(thread.id)}.`,
 		);
-
 		await set(
 			['forum', thread.id],
 			JSON.stringify({
@@ -157,6 +149,12 @@ export async function helpForumModule(bot: Bot) {
 
 	bot.client.on(Events.ThreadDelete, async (thread) => {
 		if (!isHelpThread(thread)) return;
+		const owner = await thread.fetchOwner();
+		if (!owner?.user) return;
+
+		logger.info(
+			`${bold(owner.user.tag)}'s thread ${cyan(thread.id)} deleted.`,
+		);
 		await del(['forum', thread.id]);
 	});
 
@@ -320,7 +318,16 @@ export async function helpForumModule(bot: Bot) {
 		}
 
 		if (resolved && !isAsker) {
-			await thread.send(resolvedByHelper(thread.ownerId!, msg.author.id));
+			await thread.send(`
+			<@${thread.ownerId!}>
+			Because your issue seemed to be resolved, this post was marked as resolved by <@${
+				msg.author.id
+			}>.
+			If your issue is not resolved, **you can reopen this post by running \`!reopen\`**.
+			*If you have a different question, make a new post in <#${
+				config.HELP_FORUM_CHANNEL
+			}>.*
+			`);
 		}
 	}
 

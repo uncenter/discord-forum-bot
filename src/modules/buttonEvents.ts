@@ -15,14 +15,13 @@ export const EMBED_DELETE_BUTTON =
 		new ButtonBuilder()
 			.setStyle(ButtonStyle.Danger)
 			.setLabel('Delete')
-			.setCustomId(`delete-message`),
+			.setCustomId('delete-message'),
 	);
 
 export async function handleButtonEventsModule(bot: Bot) {
 	bot.client.on(Events.InteractionCreate, async (interaction) => {
 		if (!interaction.isButton()) return;
 
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const [event, ...data] = interaction.customId.split('::');
 
 		if (event === 'delete-message') {
