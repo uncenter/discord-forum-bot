@@ -8,6 +8,9 @@ import { logger } from '~/utils/logger';
 
 const GITHUB_URL_REGEX =
 	/https?:\/\/github\.com\/([\w-]+\/[\w.-]+)\/blob\/(.+?)\/(.+?)#L(\d+)[~-]?L?(\d*)/g;
+const LANGUAGE_MAP = {
+	njk: 'jinja',
+};
 
 export async function expandGitHubLinksModule(bot: Bot) {
 	bot.client.on(Events.MessageCreate, async (message: Message) => {
@@ -32,7 +35,9 @@ export async function expandGitHubLinksModule(bot: Bot) {
 			let end = endStr ? Number.parseInt(endStr) : null;
 
 			// Get the file extension / language.
-			const language = new URL(fullURL).pathname.split('.').at(-1) || '';
+			let language = new URL(fullURL).pathname.split('.').at(-1) || '';
+			if (LANGUAGE_MAP[language as keyof typeof LANGUAGE_MAP])
+				language = LANGUAGE_MAP[language as keyof typeof LANGUAGE_MAP];
 
 			// Fetch the content from the GitHub URL.
 			const text = await fetch(
