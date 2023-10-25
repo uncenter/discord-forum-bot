@@ -1,3 +1,5 @@
+// Adapted from https://github.com/ryanccn/blahaj/blob/4bc327ab9445cccdc6268cef9842000525a36e8a/src/features/githubExpansion.ts.
+
 import type { Message } from 'discord.js';
 import type { Bot } from '~/bot';
 
