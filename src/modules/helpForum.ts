@@ -152,6 +152,14 @@ export async function helpForumModule(bot: Bot) {
 		const owner = await thread.fetchOwner();
 		if (!owner?.user) return;
 
+		const threadData = await getHelpThread(thread.id);
+
+		if (threadData.helpRequestMsg) {
+			(helpRequestChannel as TextBasedChannel)?.messages.delete(
+				threadData.helpRequestMsg,
+			);
+		}
+
 		logger.info(
 			`${bold(owner.user.tag)}'s thread ${cyan(thread.id)} deleted.`,
 		);
