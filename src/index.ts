@@ -12,12 +12,13 @@ import { cyan } from 'kleur/colors';
 
 import { Bot } from '~/bot';
 import { config } from '~/env';
+import {
+	expandGitHubLinksModule,
+	handleButtonEventsModule,
+	helpForumModule,
+} from '~/modules';
 import { startServer } from '~/server';
 import { logger } from '~/utils/logger';
-
-import { handleButtonEventsModule } from '~/modules/buttonEvents';
-import { expandGitHubLinksModule } from '~/modules/expandGitHubLinks';
-import { helpForumModule } from '~/modules/helpForum';
 
 const modules = [
 	helpForumModule,
