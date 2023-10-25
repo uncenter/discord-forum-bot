@@ -6,8 +6,8 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { secureHeaders } from 'hono/secure-headers';
 
+import { get } from '~/db';
 import { config } from '~/env';
-import { get } from '~/utils/db';
 import { logger } from '~/utils/logger';
 
 const unreachable = (): never => {

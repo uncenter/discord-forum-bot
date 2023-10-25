@@ -19,8 +19,8 @@ import {
 } from 'discord.js';
 import { bold, cyan } from 'kleur/colors';
 
+import { del, get, set } from '~/db';
 import { config } from '~/env';
-import { del, get, set } from '~/utils/db';
 import { buildEmbedMessage, sendEmbedMessage } from '~/utils/embed';
 import { logger } from '~/utils/logger';
 

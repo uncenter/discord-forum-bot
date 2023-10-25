@@ -19,7 +19,7 @@ import {
 	HEX_PURPLE,
 	HEX_RED,
 	HEX_YELLOW,
-} from '~/utils/constants';
+} from '~/constants';
 
 type SendableChannel =
 	| DMChannel

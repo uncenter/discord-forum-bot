@@ -5,7 +5,7 @@ import type { Bot } from '~/bot';
 
 import { EmbedBuilder, Events } from 'discord.js';
 
-import { HEX_PURPLE } from '~/utils/constants';
+import { HEX_PURPLE } from '~/constants';
 import { logger } from '~/utils/logger';
 
 const GITHUB_URL_REGEX =
