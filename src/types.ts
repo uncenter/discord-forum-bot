@@ -1,5 +1,5 @@
 export type ForumThread = {
 	ownerId: string;
-	helpRequestMsg?: string;
-	lastHelpersPing?: number;
+	requestForHelpMessage?: string;
+	lastHelpRequest?: number;
 };

@@ -2,9 +2,9 @@ import type { ValiError } from 'valibot';
 
 import { blue, bold, cyan, dim, red } from 'kleur/colors';
 
-export const formatValiError = (err: ValiError) => {
-	const issues = err.issues;
-	let ret = red(
+export const formatValiError = (error: ValiError) => {
+	const issues = error.issues;
+	let output = red(
 		bold(
 			`${issues.length} validation error${
 				issues.length === 1 ? '' : 's'
@@ -18,11 +18,11 @@ export const formatValiError = (err: ValiError) => {
 				?.map((p) => (p.key as string | number | symbol).toString())
 				.join(dim(' > ')) ?? 'unknown path';
 
-		ret += blue(issuePath) + '\n';
-		ret += '  ' + dim('Validation ') + issue.validation + '\n';
-		ret += '  ' + dim('Reason ') + issue.reason + '\n';
-		ret += '  ' + dim('Message ') + cyan(issue.message) + '\n';
+		output += blue(issuePath) + '\n';
+		output += '  ' + dim('Validation ') + issue.validation + '\n';
+		output += '  ' + dim('Reason ') + issue.reason + '\n';
+		output += '  ' + dim('Message ') + cyan(issue.message) + '\n';
 	}
 
-	return ret.trim();
+	return output.trim();
 };

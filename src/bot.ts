@@ -7,27 +7,27 @@ import { config } from '~/env';
 export interface CommandRegistration {
 	aliases: string[];
 	description?: string;
-	listener: (msg: Message, content: string) => Promise<void>;
+	listener: (message: Message, content: string) => Promise<void>;
 }
 
 interface Command {
 	admin: boolean;
 	aliases: string[];
 	description?: string;
-	listener: (msg: Message, content: string) => Promise<void>;
+	listener: (message: Message, content: string) => Promise<void>;
 }
 
 export class Bot {
 	commands = new Map<string, Command>();
 
 	constructor(public client: Client<true>) {
-		client.on(Events.MessageCreate, (msg) => {
-			const triggerWithPrefix = msg.content.split(/\s/)[0];
+		client.on(Events.MessageCreate, (message) => {
+			const triggerWithPrefix = message.content.split(/\s/)[0];
 			const matchingPrefix = config.COMMAND_PREFIXES.find((p) =>
 				triggerWithPrefix.startsWith(p),
 			);
 			if (matchingPrefix) {
-				const content = msg.content
+				const content = message.content
 					.slice(Math.max(0, triggerWithPrefix.length + 1))
 					.trim();
 
@@ -35,10 +35,13 @@ export class Bot {
 					triggerWithPrefix.slice(matchingPrefix.length),
 				);
 
-				if (!command || (command.admin && !this.isAdmin(msg.author))) {
+				if (
+					!command ||
+					(command.admin && !this.isAdmin(message.author))
+				) {
 					return;
 				}
-				command.listener(msg, content).catch((error) => {
+				command.listener(message, content).catch((error) => {
 					this.client.emit('error', error);
 				});
 			}
@@ -69,6 +72,7 @@ export class Bot {
 		return this.commands.get(trigger);
 	}
 
+	// eslint-disable-next-line unicorn/prevent-abbreviations
 	isMod(member: GuildMember | null) {
 		return member?.permissions.has('ManageMessages') ?? false;
 	}
@@ -77,14 +81,18 @@ export class Bot {
 		return config.ADMINS.includes(user.id);
 	}
 
-	isHelper(msg: Message) {
-		if (!msg.guild || !msg.member || !msg.channel.isTextBased()) {
+	isHelper(message: Message) {
+		if (
+			!message.guild ||
+			!message.member ||
+			!message.channel.isTextBased()
+		) {
 			return false;
 		}
 
 		if (
-			!msg.member.roles.cache.has(config.HELPER_ROLE_ID) &&
-			!msg.member.permissions.has('ManageMessages')
+			!message.member.roles.cache.has(config.HELPER_ROLE_ID) &&
+			!message.member.permissions.has('ManageMessages')
 		) {
 			return false;
 		}
@@ -92,10 +100,10 @@ export class Bot {
 		return true;
 	}
 
-	async getTargetUser(msg: Message): Promise<User | undefined> {
-		const query = msg.content.split(/\s/)[1];
+	async getTargetUser(message: Message): Promise<User | undefined> {
+		const query = message.content.split(/\s/)[1];
 
-		const mentioned = msg.mentions.members?.first()?.user;
+		const mentioned = message.mentions.members?.first()?.user;
 		if (mentioned) return mentioned;
 
 		if (!query) return;

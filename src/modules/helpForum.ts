@@ -50,9 +50,9 @@ export async function questionMeetsRequirements(
 	thread: AnyThreadChannel,
 	edit?: boolean,
 ) {
-	const msg = await thread.fetchStarterMessage();
-	if (!msg) logger.error("Couldn't find original message of thread.");
-	const { content, id, channelId } = msg as Message<true>;
+	const message = await thread.fetchStarterMessage();
+	if (!message) logger.error("Couldn't find original message of thread.");
+	const { content, id, channelId } = message as Message<true>;
 
 	const fields = [];
 
@@ -154,9 +154,9 @@ export async function helpForumModule(bot: Bot) {
 
 		const threadData = await getHelpThread(thread.id);
 
-		if (threadData.helpRequestMsg) {
+		if (threadData.requestForHelpMessage) {
 			(helpRequestChannel as TextBasedChannel)?.messages.delete(
-				threadData.helpRequestMsg,
+				threadData.requestForHelpMessage,
 			);
 		}
 
@@ -168,10 +168,10 @@ export async function helpForumModule(bot: Bot) {
 
 	bot.registerCommand({
 		aliases: ['helper', 'helpers'],
-		async listener(msg) {
-			if (!isHelpThread(msg.channel)) {
+		async listener(message) {
+			if (!isHelpThread(message.channel)) {
 				await sendEmbedMessage(
-					msg.channel,
+					message.channel,
 					buildEmbedMessage({
 						title: 'You may only ping helpers from a help post!',
 						type: 'warning',
@@ -180,11 +180,11 @@ export async function helpForumModule(bot: Bot) {
 				return;
 			}
 
-			const thread = msg.channel;
+			const thread = message.channel;
 			const threadData = await getHelpThread(thread.id);
 
-			const isAsker = msg.author.id === threadData.ownerId;
-			const isHelper = bot.isHelper(msg);
+			const isAsker = message.author.id === threadData.ownerId;
+			const isHelper = bot.isHelper(message);
 
 			if (!isAsker && !isHelper) {
 				await sendEmbedMessage(
@@ -199,7 +199,7 @@ export async function helpForumModule(bot: Bot) {
 
 			const pingAllowedAfter =
 				+(
-					threadData.lastHelpersPing ??
+					threadData.lastHelpRequest ??
 					thread.createdTimestamp ??
 					Date.now()
 				) +
@@ -222,7 +222,7 @@ export async function helpForumModule(bot: Bot) {
 				return;
 			}
 
-			const helpRequestMsg = await helpRequestChannel.send(
+			const helpRequestMessage = await helpRequestChannel.send(
 				generateHelpRequest(thread, forum),
 			);
 			await sendEmbedMessage(
@@ -236,8 +236,8 @@ export async function helpForumModule(bot: Bot) {
 				['forum', thread.id],
 				JSON.stringify({
 					...threadData,
-					lastHelpersPing: Date.now(),
-					helpRequestMsg: helpRequestMsg.id,
+					lastHelpRequest: Date.now(),
+					requestForHelpMessage: helpRequestMessage.id,
 				}),
 			);
 		},
@@ -245,15 +245,15 @@ export async function helpForumModule(bot: Bot) {
 
 	bot.registerCommand({
 		aliases: ['resolved', 'resolve', 'close', 'closed', 'done', 'solved'],
-		async listener(msg) {
-			changeStatus(msg, true);
+		async listener(message) {
+			changeStatus(message, true);
 		},
 	});
 
 	bot.registerCommand({
 		aliases: ['reopen', 'open', 'unresolved', 'unresolve'],
-		async listener(msg) {
-			changeStatus(msg, false);
+		async listener(message) {
+			changeStatus(message, false);
 		},
 	});
 
@@ -278,8 +278,8 @@ export async function helpForumModule(bot: Bot) {
 		await reaction.remove();
 	});
 
-	async function changeStatus(msg: Message, resolved: boolean) {
-		const thread = msg.channel;
+	async function changeStatus(message: Message, resolved: boolean) {
+		const thread = message.channel;
 		if (!isHelpThread(thread)) {
 			await sendEmbedMessage(
 				thread,
@@ -293,8 +293,8 @@ export async function helpForumModule(bot: Bot) {
 
 		const threadData = await getHelpThread(thread.id);
 
-		const isAsker = msg.author.id === threadData.ownerId;
-		const isHelper = bot.isHelper(msg);
+		const isAsker = message.author.id === threadData.ownerId;
+		const isHelper = bot.isHelper(message);
 
 		if (!isAsker && !isHelper) {
 			await sendEmbedMessage(
@@ -318,9 +318,9 @@ export async function helpForumModule(bot: Bot) {
 				type: 'info',
 			}),
 		);
-		if (threadData.helpRequestMsg) {
+		if (threadData.requestForHelpMessage) {
 			(helpRequestChannel as TextBasedChannel)?.messages.edit(
-				threadData.helpRequestMsg,
+				threadData.requestForHelpMessage,
 				generateHelpRequest(thread, forum),
 			);
 		}
@@ -329,7 +329,7 @@ export async function helpForumModule(bot: Bot) {
 			await thread.send(`
 			<@${thread.ownerId!}>
 			Because your issue seemed to be resolved, this post was marked as resolved by <@${
-				msg.author.id
+				message.author.id
 			}>.
 			If your issue is not resolved, **you can reopen this post by running \`!reopen\`**.
 			*If you have a different question, make a new post in <#${

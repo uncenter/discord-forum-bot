@@ -12,19 +12,19 @@ const storage = createStorage({
 
 const resolveKey = (k: string | string[]) =>
 	typeof k === 'string' ? k : k.join(':');
-const scopeToEnv = (k: string[]) => [config.NODE_ENV, ...k];
+const scopeToEnvironment = (k: string[]) => [config.NODE_ENV, ...k];
 
 export const get = async (k: string[]) => {
-	return storage.getItem(resolveKey(scopeToEnv(k)));
+	return storage.getItem(resolveKey(scopeToEnvironment(k)));
 };
 
 export const set = async (k: string[], v: string | number, ttl?: number) => {
-	const key = resolveKey(scopeToEnv(k));
+	const key = resolveKey(scopeToEnvironment(k));
 	await storage.setItem(key, v, { ttl });
 };
 
 export const incr = async (k: string[], delta?: number) => {
-	const key = resolveKey(scopeToEnv(k));
+	const key = resolveKey(scopeToEnvironment(k));
 	let oldValue = await storage.getItem(key);
 
 	if (oldValue === null) oldValue = 0;
@@ -42,10 +42,10 @@ export const decr = async (k: string[]) => {
 };
 
 export const del = async (k: string[]) => {
-	await storage.removeItem(resolveKey(scopeToEnv(k)));
+	await storage.removeItem(resolveKey(scopeToEnvironment(k)));
 };
 
 export const keys = async () => {
-	const dbKeys = await storage.getKeys(config.NODE_ENV);
-	return dbKeys.length;
+	const databaseKeys = await storage.getKeys(config.NODE_ENV);
+	return databaseKeys.length;
 };

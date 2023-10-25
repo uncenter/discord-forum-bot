@@ -9,7 +9,6 @@
 		"prettier"
 	],
 	"rules": {
-		"@typescript-eslint/no-non-null-assertion": "off",
 		"@typescript-eslint/consistent-type-imports": "error",
 		"import/consistent-type-specifier-style": ["error", "prefer-top-level"],
 		"import/no-duplicates": "error",
@@ -32,10 +31,18 @@
 			}
 		],
 		"import/newline-after-import": ["error", { "count": 1 }],
-		"unicorn/prevent-abbreviations": "off",
+		"unicorn/no-useless-undefined": ["error", { "checkArguments": false }],
+		"unicorn/text-encoding-identifier-case": "off",
 		"unicorn/filename-case": "off",
-		"unicorn/no-process-exit": "off",
 		"unicorn/numeric-separators-style": "off",
-		"unicorn/no-null": "off"
+		"unicorn/no-process-exit": "off",
+		"unicorn/no-null": "off",
+		"unicorn/prevent-abbreviations": [
+			"error",
+			{
+				"checkProperties": true,
+				"checkFilenames": false
+			}
+		]
 	}
 }

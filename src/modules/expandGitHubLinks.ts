@@ -32,9 +32,10 @@ export async function expandGitHubLinksModule(bot: Bot) {
 
 		// Iterate over all matches of GitHub URLs in the message.
 		for (const match of content.matchAll(GITHUB_URL_REGEX)) {
-			const [fullURL, repo, ref, file, startStr, endStr] = match;
-			const start = Number.parseInt(startStr);
-			let end = endStr ? Number.parseInt(endStr) : null;
+			const [fullURL, repo, reference, file, startString, endString] =
+				match;
+			const start = Number.parseInt(startString);
+			let end = endString ? Number.parseInt(endString) : null;
 
 			// Get the file extension / language.
 			let language = new URL(fullURL).pathname.split('.').at(-1) || '';
@@ -43,12 +44,12 @@ export async function expandGitHubLinksModule(bot: Bot) {
 
 			// Fetch the content from the GitHub URL.
 			const text = await fetch(
-				`https://raw.githubusercontent.com/${repo}/${ref}/${file}`,
-			).then((res) => {
-				if (!res.ok) {
+				`https://raw.githubusercontent.com/${repo}/${reference}/${file}`,
+			).then((response) => {
+				if (!response.ok) {
 					logger.error(`Failed to fetch ${fullURL} contents.`);
 				}
-				return res.text();
+				return response.text();
 			});
 
 			// Skip invalid line numbers.
@@ -76,7 +77,7 @@ export async function expandGitHubLinksModule(bot: Bot) {
 
 			// Ex. "user123/some-repo@main package.json L1-11".
 			const name = `${repo}@${
-				ref.length === 40 ? ref.slice(0, 8) : ref
+				reference.length === 40 ? reference.slice(0, 8) : reference
 			} ${file} L${start}${end ? `-${end}` : ''}`;
 
 			// Ex. "... (3000 lines not displayed)".
