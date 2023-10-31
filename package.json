@@ -28,7 +28,7 @@
 		"valibot": "^0.19.0"
 	},
 	"devDependencies": {
-		"@types/node": "^20.8.8",
+		"@types/node": "^20.8.10",
 		"@typescript-eslint/eslint-plugin": "^6.9.1",
 		"@typescript-eslint/parser": "^6.9.1",
 		"eslint": "^8.52.0",
