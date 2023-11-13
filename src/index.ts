@@ -49,6 +49,9 @@ const client = new Client({
 client.once(Events.ClientReady, async () => {
 	logger.success('Connected to Discord gateway!');
 
+	if (!client.isReady())
+		throw new Error('Client is not ready!')
+
 	const bot = new Bot(client);
 
 	logger.info(
