@@ -93,7 +93,7 @@ export const startServer = async ({ client }: { client: Client }) => {
 
 		if (!member.presence) return c.json({ error: 'not found' }, 404);
 
-		return c.json(serializePresence(member.presence));
+		return c.json(serializePresence(member.presence) as unknown);
 	});
 
 	serve(
