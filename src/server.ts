@@ -25,16 +25,16 @@ const serializePresence = (presence: Presence) => {
 				activity.type === 0
 					? ('playing' as const)
 					: activity.type === 1
-					  ? ('streaming' as const)
-					  : activity.type === 2
-					    ? ('listening' as const)
-					    : activity.type === 3
-					      ? ('watching' as const)
-					      : activity.type === 4
-					        ? ('custom' as const)
-					        : activity.type === 5
-					          ? ('competing' as const)
-					          : unreachable(),
+						? ('streaming' as const)
+						: activity.type === 2
+							? ('listening' as const)
+							: activity.type === 3
+								? ('watching' as const)
+								: activity.type === 4
+									? ('custom' as const)
+									: activity.type === 5
+										? ('competing' as const)
+										: unreachable(),
 			url: activity.url,
 			details: activity.details,
 			state: activity.state,
@@ -51,7 +51,7 @@ const serializePresence = (presence: Presence) => {
 						smallImageURL: activity.assets.smallImageURL({
 							extension: 'png',
 						}),
-				  }
+					}
 				: null,
 			flags: activity.flags,
 			emoji: activity.emoji ? activity.emoji.toJSON() : activity.emoji,
