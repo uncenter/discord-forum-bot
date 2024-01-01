@@ -316,7 +316,7 @@ export async function helpForumModule(bot: Bot) {
 						description: `If your issue is not resolved, you can reopen this thread by running \`!reopen\`. If you have a different question, make a new post in <#${config.HELP_FORUM_CHANNEL}>.`,
 						type: 'info',
 					}),
-			  )
+				)
 			: sendEmbedMessage(
 					thread,
 					buildEmbedMessage({
@@ -328,7 +328,7 @@ export async function helpForumModule(bot: Bot) {
 						}\` to ${resolved ? 'reopen' : 'resolve'} the thread.`,
 						type: 'info',
 					}),
-			  ));
+				));
 		if (threadData.requestForHelpMessage) {
 			(helpRequestChannel as TextBasedChannel)?.messages.edit(
 				threadData.requestForHelpMessage,
