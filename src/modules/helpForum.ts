@@ -308,34 +308,32 @@ export async function helpForumModule(bot: Bot) {
 		}
 
 		await setStatus(thread, resolved ? resolvedTag : openTag);
-		await sendEmbedMessage(
-			thread,
-			buildEmbedMessage({
-				title: `Thread marked as ${resolved ? 'resolved' : 'open'}.`,
-				description: `Enter \`!${
-					resolved ? 'reopen' : 'resolve'
-				}\` to ${resolved ? 'reopen' : 'resolve'} the thread.`,
-				type: 'info',
-			}),
-		);
+		await (resolved && !isAsker
+			? sendEmbedMessage(
+					thread,
+					buildEmbedMessage({
+						title: `Thread marked as resolved by <@&${message.author.id}>.`,
+						description: `If your issue is not resolved, you can reopen this thread by running \`!reopen\`. If you have a different question, make a new post in <#${config.HELP_FORUM_CHANNEL}>.`,
+						type: 'info',
+					}),
+			  )
+			: sendEmbedMessage(
+					thread,
+					buildEmbedMessage({
+						title: `Thread marked as ${
+							resolved ? 'resolved' : 'open'
+						}.`,
+						description: `Run \`!${
+							resolved ? 'reopen' : 'resolve'
+						}\` to ${resolved ? 'reopen' : 'resolve'} the thread.`,
+						type: 'info',
+					}),
+			  ));
 		if (threadData.requestForHelpMessage) {
 			(helpRequestChannel as TextBasedChannel)?.messages.edit(
 				threadData.requestForHelpMessage,
 				generateHelpRequest(thread, forum),
 			);
-		}
-
-		if (resolved && !isAsker) {
-			await thread.send(`
-			<@${thread.ownerId!}>
-			Because your issue seemed to be resolved, this post was marked as resolved by <@${
-				message.author.id
-			}>.
-			If your issue is not resolved, **you can reopen this post by running \`!reopen\`**.
-			*If you have a different question, make a new post in <#${
-				config.HELP_FORUM_CHANNEL
-			}>.*
-			`);
 		}
 	}
 
