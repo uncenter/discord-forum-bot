@@ -1,45 +1,41 @@
 {
+	"private": true,
 	"name": "discord-forum-bot",
 	"version": "0.1.0",
-	"description": "A Discord bot to improve forums.",
-	"private": true,
+	"description": "A simple Discord bot to improve managing help/support forums.",
 	"author": "uncenter <hi@uncenter.dev>",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/uncenter/discord-forum-bot.git"
-	},
+	"repository": "uncenter/discord-forum-bot",
 	"license": "MIT",
 	"scripts": {
 		"dev": "NODE_ENV=development NODE_NO_WARNINGS=1 tsx watch src/index.ts",
 		"start": "NODE_ENV=production NODE_NO_WARNINGS=1 tsx src/index.ts",
 		"lint": "tsc && eslint .",
-		"autofix": "eslint --fix .",
 		"format": "prettier --write ."
 	},
 	"dependencies": {
-		"@hono/node-server": "^1.3.2",
+		"@hono/node-server": "^1.3.5",
 		"argon2": "^0.31.2",
 		"discord.js": "^14.14.1",
 		"dotenv": "^16.3.1",
-		"hono": "^3.11.4",
+		"hono": "^3.11.11",
 		"kleur": "^4.1.5",
-		"tsx": "^4.6.2",
+		"tsx": "^4.7.0",
 		"unstorage": "^1.10.1",
-		"valibot": "^0.24.1"
+		"valibot": "^0.25.0"
 	},
 	"devDependencies": {
-		"@types/node": "^20.10.5",
-		"@typescript-eslint/eslint-plugin": "^6.15.0",
-		"@typescript-eslint/parser": "^6.15.0",
+		"@types/node": "^20.10.6",
+		"@typescript-eslint/eslint-plugin": "^6.16.0",
+		"@typescript-eslint/parser": "^6.16.0",
 		"eslint": "^8.56.0",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-import": "^2.29.1",
-		"eslint-plugin-unicorn": "^49.0.0",
+		"eslint-plugin-unicorn": "^50.0.1",
 		"prettier": "^3.1.1",
 		"typescript": "^5.3.3"
 	},
 	"engines": {
 		"node": ">=18"
 	},
-	"packageManager": "pnpm@8.10.0"
+	"packageManager": "pnpm@8.13.1+sha256.9e5f62ce5f2b7d4ceb3c2848f41cf0b33032c24d683c7088b53f62b1885fb246"
 }
