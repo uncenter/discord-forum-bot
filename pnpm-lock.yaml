@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@hono/node-server':
-    specifier: ^1.4.0
-    version: 1.4.0
+    specifier: ^1.7.0
+    version: 1.7.0
   argon2:
     specifier: ^0.31.2
     version: 0.31.2
@@ -408,8 +408,8 @@ packages:
     engines: {node: '>=14'}
     dev: false
 
-  /@hono/node-server@1.4.0:
-    resolution: {integrity: sha512-bhDkhldW7w9VgjrX0gG1vJ2YyvTxFWd5WG9nHjSR4UauhVECQZC3qy7mVVuQ054I5NWhKttHfKzYfoPzmUzAjw==}
+  /@hono/node-server@1.7.0:
+    resolution: {integrity: sha512-W+Gy16xWZMgB8hYU4XInCwE746y8V3VDTH1J3+EhUBqbCzk4zEXo1p6dv3BiCD5O6Z4aHuoCW+mRKoJgUn3ZCA==}
     engines: {node: '>=18.14.1'}
     dev: false
 
