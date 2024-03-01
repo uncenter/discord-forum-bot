@@ -18,8 +18,8 @@ dependencies:
     specifier: ^16.3.1
     version: 16.3.1
   hono:
-    specifier: ^3.11.12
-    version: 3.11.12
+    specifier: ^4.0.8
+    version: 4.0.8
   kleur:
     specifier: ^4.1.5
     version: 4.1.5
@@ -1910,8 +1910,8 @@ packages:
       function-bind: 1.1.2
     dev: true
 
-  /hono@3.11.12:
-    resolution: {integrity: sha512-TrxH75bc0m2UbvrhaXkoo32A9OhkJtvICAYgYWtxqLDOxBjRqSikyp4K7HTbnWkPeg9Z+2Q3nv0dN4o8kL6yLg==}
+  /hono@4.0.8:
+    resolution: {integrity: sha512-zhTXu32vXeEXajsqZVjPfoyO0/fgAKLLmPBpSDzRBMr7zZ5N8yV1FmsfWl2MYtm+MD8hD7knLCovx8Oaqubd4w==}
     engines: {node: '>=16.0.0'}
     dev: false
 
